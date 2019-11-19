@@ -1,4 +1,4 @@
-use core::borrow::Borrow;
+use super::point;
 
 pub struct Board {
     size: (i32, i32)
@@ -9,7 +9,7 @@ impl Board {
         Board { size: (x, y) }
     }
 
-    pub fn is_valid_position(&self, (x, y): (&i32, &i32)) -> bool {
-        if x >= 0.borrow() && x <= self.size.0.borrow() && y >= 0.borrow() && y <= self.size.1.borrow() { true } else { false }
+    pub fn is_valid_position(&self, p: &point::Point) -> bool {
+        if p.x >= 0 && p.x <= self.size.0 && p.y >= 0 && p.y <= self.size.1 { true } else { false }
     }
 }

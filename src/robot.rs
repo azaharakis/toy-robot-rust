@@ -1,12 +1,15 @@
-pub struct Robot {
-    place: (i32, i32)
+use super::point;
+
+#[derive(Debug)]
+pub struct Robot<'a> {
+    place: &'a point::Point
 }
 
-impl Robot {
-    pub fn new(x: i32, y: i32) -> Robot {
-        Robot { place: (x, y) }
+impl<'a> Robot<'a> {
+    pub fn new(p : &'a point::Point) -> Robot {
+        Robot { place: p }
     }
-    pub fn get_position(&self) -> (&i32, &i32) {
-        (&self.place.0, &self.place.1)
+    pub fn get_position(&self) -> &'a point::Point {
+        self.place
     }
 }
