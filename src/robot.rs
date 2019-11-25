@@ -1,7 +1,7 @@
 use super::point;
 use super::Direction;
 
-pub struct Robot<> {
+pub struct Robot {
     place: point::Point,
     direction: Direction,
 }
@@ -11,27 +11,56 @@ impl Robot {
         Robot { place: p, direction: d }
     }
 
+    pub fn get_position(&self) -> &point::Point {
+        &self.place
+    }
+
     pub fn get_facing_direction(&self) -> &Direction {
         &self.direction
     }
 
-    pub fn get_position(&self) -> &point::Point {
-        &self.place
+    // Find out what difference is between mut self | &mut self
+    pub fn set_position(&mut self, p: point::Point) {
+        self.place = p;
+    }
+
+    pub fn set_facing_direction(&mut self, d: Direction) {
+        self.direction = d;
     }
 }
 
+pub struct Movement;
 
-trait Movement {
-    fn move_(&mut self) {}
-    fn left(&mut self) {}
-    fn right(&mut self) {}
-}
-
-impl Movement for Robot {
-    fn move_(&mut self) {
-        match &self.direction {
+impl Movement {
+    pub fn get_direction_to_left(direction: &Direction) -> Direction {
+        match direction {
+            Direction::North => Direction::East,
+            Direction::East => Direction::South,
+            Direction::South => Direction::West,
+            Direction::West => Direction::North,
+        }
+    }
+    pub fn get_direction_to_right(direction: &Direction) -> Direction {
+        match direction {
+            Direction::North => Direction::West,
+            Direction::West => Direction::South,
+            Direction::South => Direction::East,
+            Direction::East => Direction::North,
+        }
+    }
+    pub fn move_a_point_in_direction(d: &Direction, p: &point::Point) -> point::Point {
+        match d {
             Direction::North => {
-                self.place = self.place + point::Point { x: 0, y: 1 }
+                p.clone() + point::Point { x: 0, y: 1 }
+            }
+            Direction::East => {
+                p.clone() + point::Point { x: -1, y: 0 }
+            }
+            Direction::South => {
+                p.clone() + point::Point { x: 0, y: -1 }
+            }
+            Direction::West => {
+                p.clone() + point::Point { x: 1, y: 0 }
             }
         }
     }
