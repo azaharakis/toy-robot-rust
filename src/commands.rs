@@ -1,71 +1,48 @@
 use crate::point::Point;
 use crate::{point, Direction};
-use std::fmt::Error;
 
-pub enum MoveCommands {
+pub enum KnownCommands {
+    Place(point::Point, Direction),
     Move,
     Left,
     Right,
 }
 
-pub enum StartingCommand {
-    Place(point::Point, Direction),
+pub struct Commands<T> {
+    pub place: Box<dyn Fn(Point, Direction) -> Option<T>>,
+    pub left: Box<dyn FnMut(&mut T)>,
+    pub right: Box<dyn FnMut(&mut T)>,
+    pub perform_move: Box<dyn FnMut(&mut T)>,
 }
 
-pub enum KnownCommands {
-    MoveCommands(MoveCommands),
-    StartingCommand(StartingCommand),
-}
-
-struct StartingCommands {
-    place: fn(Point, Direction),
-}
-
-struct Commands {
-    left: fn(),
-    right: fn(),
-    perform_move: fn(),
-    report: (),
-}
-
-pub fn get_commands<F>(
-    validate_starting_command: F,
-) -> Result<(StartingCommand, Vec<MoveCommands>), Error>
-where
-    F: Fn(&Point, &Direction) -> bool,
-{
+pub fn run_commands_against<T>(_app: fn() -> Commands<T>) {
     let commands = vec![
-        KnownCommands::StartingCommand(StartingCommand::Place(
-            point::Point { x: 1, y: 1 },
-            Direction::North,
-        )),
-        KnownCommands::MoveCommands(MoveCommands::Move),
+        KnownCommands::Place(point::Point { x: 1, y: 1 }, Direction::North),
+        KnownCommands::Left,
+        KnownCommands::Right,
+        KnownCommands::Right,
+        KnownCommands::Move,
     ];
+    let mut app = _app();
+    let mut object: Option<T> = None;
 
-    let mut place_command: Option<StartingCommand> = None;
-    let move_commands = commands
+    commands
         .into_iter()
-        .filter_map(|c| match c {
-            KnownCommands::StartingCommand(s) => {
-                match s {
-                    StartingCommand::Place(p, d) => {
-                        if validate_starting_command(&p, &d) {
-                            place_command = Some(StartingCommand::Place(p, d))
-                        } else {
-                            println!("Cannot place robot at: {:?}", p);
-                        }
-                    }
-                }
-                None
+        .map(|command| match command {
+            KnownCommands::Place(p, d) => {
+                object = (app.place)(p, d);
             }
-            KnownCommands::MoveCommands(m) => {
-                if let Some(_) = place_command {
-                    return Some(m);
+            c @ KnownCommands::Move | c @ KnownCommands::Left | c @ KnownCommands::Right => {
+                match object.as_mut() {
+                    Some(o) => match c {
+                        KnownCommands::Move => (app.perform_move)(o),
+                        KnownCommands::Left => (app.left)(o),
+                        KnownCommands::Right => (app.right)(o),
+                        _ => {}
+                    },
+                    _ => {}
                 }
-                None
             }
         })
-        .collect();
-
-    Ok((place_command.unwrap(), move_commands))
+        .collect()
 }
