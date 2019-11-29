@@ -1,19 +1,15 @@
 use crate::board::Board;
 use crate::commands::{run_commands_against, Commands};
-use crate::robot::{Movement, Robot};
+use crate::direction::Direction;
+use crate::movement::Movement;
+use crate::robot::Robot;
 
 mod board;
 mod commands;
+mod direction;
+mod movement;
 mod point;
 mod robot;
-
-#[derive(Debug)]
-pub enum Direction {
-    North,
-    East,
-    South,
-    West,
-}
 
 struct App {
     board: Board,

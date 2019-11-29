@@ -1,5 +1,6 @@
+use crate::direction::Direction;
+use crate::point;
 use crate::point::Point;
-use crate::{point, Direction};
 
 pub enum KnownCommands {
     Place(point::Point, Direction),
