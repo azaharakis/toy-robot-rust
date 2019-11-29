@@ -7,6 +7,7 @@ pub enum KnownCommands {
     Move,
     Left,
     Right,
+    Report,
 }
 
 pub trait Commands<T> {
@@ -14,6 +15,7 @@ pub trait Commands<T> {
     fn left(&self, o: &mut T);
     fn right(&self, o: &mut T);
     fn perform_move(&self, o: &mut T);
+    fn report(&self, o: &T);
 }
 
 pub fn run_commands_against<T>(app: impl Commands<T>) {
@@ -23,6 +25,7 @@ pub fn run_commands_against<T>(app: impl Commands<T>) {
         KnownCommands::Right,
         KnownCommands::Right,
         KnownCommands::Move,
+        KnownCommands::Report,
     ];
     let mut object: Option<T> = None;
 
@@ -32,17 +35,16 @@ pub fn run_commands_against<T>(app: impl Commands<T>) {
             KnownCommands::Place(p, d) => {
                 object = app.place(p, d);
             }
-            c @ KnownCommands::Move | c @ KnownCommands::Left | c @ KnownCommands::Right => {
-                match object.as_mut() {
-                    Some(o) => match c {
-                        KnownCommands::Move => app.perform_move(o),
-                        KnownCommands::Left => app.left(o),
-                        KnownCommands::Right => app.right(o),
-                        _ => {}
-                    },
+            c => match object.as_mut() {
+                Some(o) => match c {
+                    KnownCommands::Move => app.perform_move(o),
+                    KnownCommands::Left => app.left(o),
+                    KnownCommands::Right => app.right(o),
+                    KnownCommands::Report => app.report(o),
                     _ => {}
-                }
-            }
+                },
+                _ => {}
+            },
         })
         .collect()
 }
