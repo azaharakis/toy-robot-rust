@@ -4,6 +4,4 @@ use crate::point::Point;
 pub enum ApplicationErrors {
     #[fail(display = "Could not move to position: {:?}", _0)]
     InvalidMove(Point),
-    #[fail(display = "Place was never called.")]
-    PlaceNotCalled,
 }
