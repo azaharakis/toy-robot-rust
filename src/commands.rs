@@ -25,15 +25,18 @@ pub fn run_commands_against(app: impl Commands) {
         KnownCommands::Place(p, d) => {
             robot = app.place(p, d);
         }
-        c => match robot.as_mut() {
-            Some(r) => match c {
-                KnownCommands::Move => app.perform_move(r).unwrap_or_else(|e| println!("{}", e)),
-                KnownCommands::Left => app.left(r),
-                KnownCommands::Right => app.right(r),
-                KnownCommands::Report => println!("Robot placed at: {}", r),
-                _ => {}
-            },
-            _ => {}
-        },
+        c => {
+            if let Some(r) = robot.as_mut() {
+                match c {
+                    KnownCommands::Move => {
+                        app.perform_move(r).unwrap_or_else(|e| println!("{}", e))
+                    }
+                    KnownCommands::Left => app.left(r),
+                    KnownCommands::Right => app.right(r),
+                    KnownCommands::Report => println!("Robot placed at: {}", r),
+                    _ => {}
+                }
+            }
+        }
     });
 }
