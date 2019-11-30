@@ -1,11 +1,16 @@
+#[macro_use]
+extern crate failure;
 use crate::board::Board;
-use crate::commands::{run_commands_against, Commands};
+use crate::commands::run_commands_against;
 use crate::direction::Direction;
+use crate::errors::ApplicationErrors;
+use crate::point::Point;
 use crate::robot::Robot;
 
 mod board;
 mod commands;
 mod direction;
+mod errors;
 mod movement;
 mod point;
 mod robot;
@@ -22,7 +27,14 @@ impl App {
     }
 }
 
-impl Commands<Robot> for App {
+pub trait Commands {
+    fn place(&self, p: Point, d: Direction) -> Option<Robot>;
+    fn left(&self, r: &mut Robot);
+    fn right(&self, r: &mut Robot);
+    fn perform_move(&self, r: &mut Robot) -> Result<(), ApplicationErrors>;
+}
+
+impl Commands for App {
     fn place(&self, p: point::Point, d: Direction) -> Option<Robot> {
         if self.board.is_valid_position(&p) {
             return Some(Robot::new(p, d));
@@ -39,19 +51,14 @@ impl Commands<Robot> for App {
             robot.get_facing_direction(),
         ));
     }
-    fn perform_move(&self, robot: &mut Robot) {
+    fn perform_move(&self, robot: &mut Robot) -> Result<(), ApplicationErrors> {
         let potential_pos =
             movement::move_a_point_in_direction(robot.get_facing_direction(), robot.get_position());
         if self.board.is_valid_position(&potential_pos) {
-            robot.set_position(potential_pos);
+            Ok(robot.set_position(potential_pos))
+        } else {
+            Err(ApplicationErrors::InvalidMove(potential_pos))
         }
-    }
-    fn report(&self, robot: &Robot) {
-        println!(
-            "robot is facing {:?} at coordinates: {:?}",
-            robot.get_facing_direction(),
-            robot.get_position(),
-        )
     }
 }
 

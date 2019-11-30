@@ -1,6 +1,6 @@
 use crate::direction::Direction;
-use crate::point;
-use crate::point::Point;
+use crate::robot::Robot;
+use crate::{point, Commands};
 
 pub enum KnownCommands {
     Place(point::Point, Direction),
@@ -10,41 +10,30 @@ pub enum KnownCommands {
     Report,
 }
 
-pub trait Commands<T> {
-    fn place(&self, p: Point, d: Direction) -> Option<T>;
-    fn left(&self, o: &mut T);
-    fn right(&self, o: &mut T);
-    fn perform_move(&self, o: &mut T);
-    fn report(&self, o: &T);
-}
-
-pub fn run_commands_against<T>(app: impl Commands<T>) {
+pub fn run_commands_against(app: impl Commands) {
     let commands = vec![
-        KnownCommands::Place(point::Point { x: 1, y: 1 }, Direction::North),
+        KnownCommands::Place(point::Point { x: 5, y: 5 }, Direction::North),
         KnownCommands::Left,
         KnownCommands::Right,
         KnownCommands::Right,
         KnownCommands::Move,
         KnownCommands::Report,
     ];
-    let mut object: Option<T> = None;
+    let mut robot: Option<Robot> = None;
 
-    commands
-        .into_iter()
-        .map(|command| match command {
-            KnownCommands::Place(p, d) => {
-                object = app.place(p, d);
-            }
-            c => match object.as_mut() {
-                Some(o) => match c {
-                    KnownCommands::Move => app.perform_move(o),
-                    KnownCommands::Left => app.left(o),
-                    KnownCommands::Right => app.right(o),
-                    KnownCommands::Report => app.report(o),
-                    _ => {}
-                },
+    commands.into_iter().for_each(|command| match command {
+        KnownCommands::Place(p, d) => {
+            robot = app.place(p, d);
+        }
+        c => match robot.as_mut() {
+            Some(r) => match c {
+                KnownCommands::Move => app.perform_move(r).unwrap_or_else(|e| println!("{}", e)),
+                KnownCommands::Left => app.left(r),
+                KnownCommands::Right => app.right(r),
+                KnownCommands::Report => println!("Robot placed at: {}", r),
                 _ => {}
             },
-        })
-        .collect()
+            _ => {}
+        },
+    });
 }

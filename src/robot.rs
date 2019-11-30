@@ -1,5 +1,6 @@
 use super::point;
 use crate::direction::Direction;
+use std::fmt;
 
 pub struct Robot {
     place: point::Point,
@@ -29,5 +30,11 @@ impl Robot {
 
     pub fn set_facing_direction(&mut self, d: Direction) {
         self.direction = d;
+    }
+}
+
+impl fmt::Display for Robot {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "position: {}, direction: {}", self.place, self.direction)
     }
 }
