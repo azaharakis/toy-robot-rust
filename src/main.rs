@@ -4,7 +4,6 @@ use crate::board::Board;
 use crate::commands::{run_commands_against, Commands};
 use crate::direction::Direction;
 use crate::errors::ApplicationErrors;
-use crate::point::Point;
 use crate::robot::Robot;
 
 mod board;
