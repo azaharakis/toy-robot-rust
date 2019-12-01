@@ -1,7 +1,7 @@
 #[macro_use]
 extern crate failure;
 use crate::board::Board;
-use crate::commands::run_commands_against;
+use crate::commands::{run_commands_against, Commands};
 use crate::direction::Direction;
 use crate::errors::ApplicationErrors;
 use crate::point::Point;
@@ -12,6 +12,7 @@ mod commands;
 mod direction;
 mod errors;
 mod movement;
+mod parse_input;
 mod point;
 mod robot;
 
@@ -25,13 +26,6 @@ impl App {
             board: Board::new(5, 5),
         }
     }
-}
-
-pub trait Commands {
-    fn place(&self, p: Point, d: Direction) -> Option<Robot>;
-    fn left(&self, r: &mut Robot);
-    fn right(&self, r: &mut Robot);
-    fn perform_move(&self, r: &mut Robot) -> Result<(), ApplicationErrors>;
 }
 
 impl Commands for App {

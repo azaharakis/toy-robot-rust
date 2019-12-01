@@ -1,13 +1,23 @@
 use crate::direction::Direction;
+use crate::errors::ApplicationErrors;
+use crate::point;
+use crate::point::Point;
 use crate::robot::Robot;
-use crate::{point, Commands};
 
+#[derive(Debug, PartialEq, Eq)]
 pub enum KnownCommands {
     Place(point::Point, Direction),
     Move,
     Left,
     Right,
     Report,
+}
+
+pub trait Commands {
+    fn place(&self, p: Point, d: Direction) -> Option<Robot>;
+    fn left(&self, r: &mut Robot);
+    fn right(&self, r: &mut Robot);
+    fn perform_move(&self, r: &mut Robot) -> Result<(), ApplicationErrors>;
 }
 
 pub fn run_commands_against(app: impl Commands) {
